@@ -417,10 +417,12 @@ class MaskedAutoencoderViT(nn.Module):
         return loss      
 
     def forward(self, imgs, mask_ratio=0.8, return_embeddings=False):
-        emb_enc, mask, ids_restore, _ = self.forward_encoder(imgs, mask_ratio, mask_2d=self.mask_2d)
         
         if return_embeddings:
+            emb_enc, mask, ids_restore, _ = self.forward_encoder_no_mask(imgs)
             return emb_enc
+        
+        emb_enc, mask, ids_restore, _ = self.forward_encoder(imgs, mask_ratio, mask_2d=self.mask_2d)
         
         pred, _, _ = self.forward_decoder(emb_enc, ids_restore)  # [N, L, p*p*3]
         loss_recon = self.forward_loss(imgs, pred, mask, norm_pix_loss=self.norm_pix_loss)
